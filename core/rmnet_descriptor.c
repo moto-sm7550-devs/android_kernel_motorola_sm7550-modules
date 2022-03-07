@@ -797,7 +797,7 @@ static void rmnet_frag_partial_csum(struct sk_buff *skb,
 	skb->csum_start = (u8 *)iph + frag_desc->ip_len - skb->head;
 }
 
-#define PFN_ENTRY_MAX (128)
+#define PFN_ENTRY_MAX (256)
 #define PFNI (count++ % PFN_ENTRY_MAX)
 static void rmnet_descriptor_trace_pfn(struct sk_buff *skb)
 {
@@ -1079,7 +1079,7 @@ skip_trace_print_tcp_rx:
 			snprintf(daddr, INET6_ADDRSTRLEN, "%pI6", &ipv6_hdr(head_skb)->daddr);
 		}
 
-		trace_print_udp_rx(head_skb, saddr, daddr, udp_hdr(head_skb), ip_id);
+		trace_print_udp_rx(head_skb, saddr, daddr, udp_hdr(head_skb));
 
 		rmnet_descriptor_trace_pfn(head_skb);
 	}
