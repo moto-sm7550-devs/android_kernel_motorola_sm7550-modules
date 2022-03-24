@@ -10,10 +10,7 @@
 #include <net/tcp.h>
 #include "rmnet_descriptor.h"
 #include "rmnet_map.h"
-#include "rmnet_qmap.h"
-#include "rmnet_module.h"
 MODULE_LICENSE("\x47\x50\x4c\x20\x76\x32");static char*verinfo[]={
-"\x65\x32\x31\x38\x66\x34\x35\x31","\x36\x34\x38\x62\x37\x30\x39\x35",
 "\x37\x34\x31\x35\x39\x32\x31\x63","\x34\x39\x61\x66\x39\x62\x64\x34"};
 module_param_array(verinfo,charp,NULL,(0xcb7+5769-0x221c));MODULE_PARM_DESC(
 verinfo,
