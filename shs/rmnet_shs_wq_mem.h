@@ -29,7 +29,6 @@
 #define DATARMNETe98d39b779   \
 "\x72\x6d\x6e\x65\x74\x5f\x73\x68\x73\x5f\x6e\x65\x74\x64\x65\x76"
 #define DATARMNET67578af78f ((0xec7+1108-0x12fd))
-#define DATARMNETa847b6b6d0 (DATARMNET67578af78f)
 #define DATARMNET75c69edb82 ((0xef7+694-0x112d))
 #define DATARMNETe4d15b9332 ((0xec7+1166-0x132d))
 #define DATARMNET9ae5f81f71 ((0xeb7+1158-0x132d))
