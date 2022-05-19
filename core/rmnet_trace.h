@@ -348,34 +348,6 @@ TRACE_EVENT(print_pfn,
 	)
 );
 
-TRACE_EVENT(print_pfn,
-
-	TP_PROTO(struct sk_buff *skb, unsigned long *pfn_list, int num_elements),
-
-	TP_ARGS(skb, pfn_list, num_elements),
-
-	TP_STRUCT__entry(
-		__field(void *, skbaddr)
-		__field(int, num_elements)
-		__dynamic_array(unsigned long, pfn_list, num_elements)
-	),
-
-	TP_fast_assign(
-		__entry->skbaddr = skb;
-		__entry->num_elements = num_elements;
-		memcpy(__get_dynamic_array(pfn_list), pfn_list,
-		       num_elements * sizeof(*pfn_list));
-	),
-
-	TP_printk("skbaddr=%pK count=%d pfn=%s",
-		  __entry->skbaddr,
-		  __entry->num_elements,
-		  __print_array(__get_dynamic_array(pfn_list),
-				__entry->num_elements,
-				sizeof(unsigned long))
-	)
-);
-
 /*****************************************************************************/
 /* Trace events for rmnet_perf module */
 /*****************************************************************************/
