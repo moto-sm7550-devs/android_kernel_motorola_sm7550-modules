@@ -1079,7 +1079,7 @@ skip_trace_print_tcp_rx:
 			snprintf(daddr, INET6_ADDRSTRLEN, "%pI6", &ipv6_hdr(head_skb)->daddr);
 		}
 
-		trace_print_udp_rx(head_skb, saddr, daddr, udp_hdr(head_skb));
+		trace_print_udp_rx(head_skb, saddr, daddr, udp_hdr(head_skb), ip_id);
 
 		rmnet_descriptor_trace_pfn(head_skb);
 	}
