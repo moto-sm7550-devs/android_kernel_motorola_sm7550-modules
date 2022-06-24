@@ -140,17 +140,16 @@ DATARMNETe4ee0d2636,DATARMNET23b8465daf,DATARMNET052f49b190,DATARMNETfb753e521e,
 DATARMNET64b02f64c6,DATARMNET576793621a,DATARMNETc262b24b02,DATARMNET4ebbc01257,
 DATARMNET595eed6ea2,DATARMNETde090e8314,DATARMNETa593d87b38,DATARMNET8a2898988b,
 DATARMNET0709c9f764,};extern struct DATARMNET37ef896af8 DATARMNET1731db288b;
-extern spinlock_t DATARMNETd83ee17944;extern spinlock_t DATARMNET3764d083f0;
-extern spinlock_t DATARMNETec2a4f5211;extern spinlock_t DATARMNETfbdbab2ef6;
-extern struct hlist_head DATARMNETe603c3a4b3[(0xd26+209-0xdf6)<<(
-DATARMNET25437d35fd)];extern int(*rmnet_shs_skb_entry)(struct sk_buff*skb,struct
- rmnet_shs_clnt_s*DATARMNET9e820fbfe3);extern int(*rmnet_shs_ll_skb_entry)(
-struct sk_buff*skb,struct rmnet_shs_clnt_s*DATARMNET9e820fbfe3);extern int(*
-rmnet_shs_switch)(struct sk_buff*skb,struct rmnet_shs_clnt_s*DATARMNET9e820fbfe3
-);void DATARMNET203752febd(void);void DATARMNET7520667b38(void);void 
-DATARMNETa871eeb7e7(void);void DATARMNET8f9da46b14(void);int DATARMNET362b15f941
-(u16 cpu);void DATARMNETeacad8334e(void);void DATARMNETe1f95274f1(void);unsigned
- int DATARMNET02cdd9b125(void);int DATARMNET310c3eb16e(u8 mask);int 
+extern spinlock_t DATARMNET3764d083f0;extern spinlock_t DATARMNETec2a4f5211;
+extern spinlock_t DATARMNETfbdbab2ef6;extern struct hlist_head 
+DATARMNETe603c3a4b3[(0xd26+209-0xdf6)<<(DATARMNET25437d35fd)];extern int(*
+rmnet_shs_skb_entry)(struct sk_buff*skb,struct rmnet_shs_clnt_s*
+DATARMNET9e820fbfe3);extern int(*rmnet_shs_switch)(struct sk_buff*skb,struct 
+rmnet_shs_clnt_s*DATARMNET9e820fbfe3);void DATARMNET203752febd(void);void 
+DATARMNET7520667b38(void);void DATARMNETa871eeb7e7(void);void 
+DATARMNET8f9da46b14(void);int DATARMNET362b15f941(u16 cpu);void 
+DATARMNETeacad8334e(void);void DATARMNETe1f95274f1(void);unsigned int 
+DATARMNET02cdd9b125(void);int DATARMNET310c3eb16e(u8 mask);int 
 DATARMNETe02152c351(struct DATARMNET63d7680df2*DATARMNET63b1a086d5,u8 
 DATARMNETd87669e323,u8 DATARMNET5447204733);void DATARMNET78bb6be330(struct 
 rmnet_map_dl_ind_hdr*dlhdr,struct rmnet_map_control_command_header*qcmd);void 
