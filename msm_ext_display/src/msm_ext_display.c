@@ -63,7 +63,7 @@ static int msm_ext_disp_extcon_register(struct msm_ext_disp *ext_disp, int id)
 		return ret;
 	}
 
-	pr_debug("extcon registration done\n");
+	pr_info("extcon registration done\n");
 
 	return ret;
 }
@@ -76,6 +76,7 @@ static void msm_ext_disp_extcon_unregister(struct msm_ext_disp *ext_disp,
 		return;
 	}
 
+	pr_info(" %d\n", ext_disp->current_codec.type);
 	devm_extcon_dev_unregister(&ext_disp->pdev->dev,
 			ext_disp->audio_sdev[id]);
 }
@@ -109,7 +110,7 @@ static int msm_ext_disp_add_intf_data(struct msm_ext_disp *ext_disp,
 
 	list_add(&node->list, &ext_disp->display_list);
 
-	pr_debug("Added new display (%s) ctld (%d) stream (%d)\n",
+	pr_info("Added new display (%s) ctld (%d) stream (%d)\n",
 		msm_ext_disp_name(data->codec.type),
 		data->codec.ctrl_id, data->codec.stream_id);
 
@@ -126,6 +127,10 @@ static int msm_ext_disp_remove_intf_data(struct msm_ext_disp *ext_disp,
 		pr_err("Invalid params\n");
 		return -EINVAL;
 	}
+
+	pr_info("Remove display (%s) ctld (%d) stream (%d)\n",
+		msm_ext_disp_name(data->codec.type),
+		data->codec.ctrl_id, data->codec.stream_id);
 
 	list_for_each(pos, &ext_disp->display_list) {
 		node = list_entry(pos, struct msm_ext_disp_list, list);
@@ -201,7 +206,7 @@ static int msm_ext_disp_process_audio(struct msm_ext_disp *ext_disp,
 	if (ret)
 		pr_err("Failed to set state. Error = %d\n", ret);
 	else
-		pr_debug("state changed to %d\n", new_state);
+		pr_info("state changed to %d\n", new_state);
 
 end:
 	return ret;
@@ -288,6 +293,8 @@ static int msm_ext_disp_audio_config(struct platform_device *pdev,
 		goto end;
 	}
 
+	pr_info("state=%d, %s\n", state, msm_ext_disp_name(ext_disp->current_codec.type));
+
 	if (state == EXT_DISPLAY_CABLE_CONNECT) {
 		ret = msm_ext_disp_select_audio_codec(pdev, codec);
 	} else {
@@ -318,6 +325,8 @@ static int msm_ext_disp_audio_notify(struct platform_device *pdev,
 		goto end;
 	}
 
+	pr_info("state=%d, %s\n", state, msm_ext_disp_name(ext_disp->current_codec.type));
+
 	mutex_lock(&ext_disp->lock);
 	ret = msm_ext_disp_process_audio(ext_disp, codec, state);
 	mutex_unlock(&ext_disp->lock);
@@ -342,6 +351,8 @@ static void msm_ext_disp_ready_for_display(struct msm_ext_disp *ext_disp)
 			msm_ext_disp_name(ext_disp->current_codec.type));
 		return;
 	}
+
+	pr_info(" %s\n", msm_ext_disp_name(ext_disp->current_codec.type));
 
 	*ext_disp->ops = data->codec_ops;
 	data->codec_ops.ready(ext_disp->pdev);
@@ -391,7 +402,7 @@ int msm_ext_disp_register_audio_codec(struct platform_device *pdev,
 
 	ext_disp->ops = ops;
 
-	pr_debug("audio codec registered\n");
+	pr_info("audio codec registered\n");
 
 	if (ext_disp->update_audio) {
 		ext_disp->update_audio = false;
@@ -530,7 +541,7 @@ int msm_ext_disp_register_intf(struct platform_device *pdev,
 	init_data->intf_ops.audio_config = msm_ext_disp_audio_config;
 	init_data->intf_ops.audio_notify = msm_ext_disp_audio_notify;
 
-	pr_debug("%s registered. ctrl(%d) stream(%d)\n",
+	pr_info("%s registered. ctrl(%d) stream(%d)\n",
 			msm_ext_disp_name(init_data->codec.type),
 			init_data->codec.ctrl_id,
 			init_data->codec.stream_id);
@@ -570,7 +581,7 @@ int msm_ext_disp_deregister_intf(struct platform_device *pdev,
 	init_data->intf_ops.audio_config = NULL;
 	init_data->intf_ops.audio_notify = NULL;
 
-	pr_debug("%s deregistered\n",
+	pr_info("%s deregistered\n",
 			msm_ext_disp_name(init_data->codec.type));
 end:
 	mutex_unlock(&ext_disp->lock);
