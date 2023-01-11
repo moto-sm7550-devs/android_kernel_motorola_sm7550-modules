@@ -149,7 +149,6 @@ else ifneq ($(filter malmo%, $(USE_TARGET_PRODUCT)), )
 else ifneq ($(filter tank%, $(USE_TARGET_PRODUCT)), )
         EXTRA_CFLAGS += -DPRODUCT_TANK
 endif
-$(warning "william EXTRA_CFLAGS = $(EXTRA_CFLAGS)")
 
 KBUILD_EXTRA_SYMBOLS += $(CURDIR)/$(KBUILD_EXTMOD)/../touchscreen_mmi/Module.symvers
 KBUILD_EXTRA_SYMBOLS += $(CURDIR)/$(KBUILD_EXTMOD)/../../../mmi_info/Module.symvers
