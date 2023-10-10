@@ -1345,7 +1345,7 @@ static int dsi_panel_set_hbm(struct dsi_panel *panel,
 		else
 			bl_lvl = HBM_BRIGHTNESS(param_info->value);
 		mutex_lock(&panel->panel_lock);
-		rc = dsi_panel_set_backlight(panel, HBM_BRIGHTNESS(param_info->value));
+		rc = dsi_panel_set_backlight(panel, bl_lvl);
 		mutex_unlock(&panel->panel_lock);
 		if (rc)
 			DSI_ERR("unable to set backlight\n");
