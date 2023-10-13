@@ -1254,8 +1254,8 @@ static int dsi_panel_set_local_hbm_param(struct dsi_panel *panel,
 					}else{
 						payload[1] = (alpha&0xff00)>>8;
 						payload[2] = alpha&0xff;
-						payload[3] = 0x14;
-						payload[4] = 0xAC;
+						payload[3] = ((lhbm_config->dc_hybird_threshold+1) & 0xff00) >> 8;
+						payload[4] = (lhbm_config->dc_hybird_threshold+1) & 0xff;
 						DSI_INFO("%s: alpha [%x]=%x%x%x%x  alpha_level = %d backlight level=%d\n ",
 							__func__, payload[0], payload[1], payload[2], payload[3], payload[4],alpha_level,lhbm_config->dbv_level);
 					}
