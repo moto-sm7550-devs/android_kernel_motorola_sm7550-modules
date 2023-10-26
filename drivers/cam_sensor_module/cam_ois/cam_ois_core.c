@@ -258,7 +258,9 @@ static int cam_ois_power_down(struct cam_ois_ctrl_t *o_ctrl)
 #endif
 
 #if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
-	g_ois_init_finished = 0;
+	if (o_ctrl->af_ois_use_same_ic == true) {
+		g_ois_init_finished = 0;
+	}
 #endif
 
 	camera_io_release(&o_ctrl->io_master_info);
@@ -1024,7 +1026,9 @@ static int cam_ois_pkt_parse(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 #endif
 
 #if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
-		g_ois_init_finished = 1;
+		if (o_ctrl->af_ois_use_same_ic == true) {
+			g_ois_init_finished = 1;
+		}
 #endif
 
 		if (o_ctrl->is_ois_calib) {

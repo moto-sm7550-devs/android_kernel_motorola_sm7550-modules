@@ -44,6 +44,15 @@ static int cam_ois_get_dt_data(struct cam_ois_ctrl_t *o_ctrl)
 	}
 #endif
 
+#if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
+	if (!of_property_read_bool(of_node, "af-ois-use-same-ic")) {
+		o_ctrl->af_ois_use_same_ic = false;
+	} else {
+		o_ctrl->af_ois_use_same_ic = true;
+	}
+	CAM_WARN(CAM_OIS, "af_ois_use_same_ic %d", o_ctrl->af_ois_use_same_ic);
+#endif
+
 	rc = cam_soc_util_get_dt_properties(soc_info);
 	if (rc < 0) {
 		CAM_ERR(CAM_OIS, "cam_soc_util_get_dt_properties rc %d",
