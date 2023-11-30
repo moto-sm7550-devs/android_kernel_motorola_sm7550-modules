@@ -44,6 +44,15 @@ static int cam_ois_get_dt_data(struct cam_ois_ctrl_t *o_ctrl)
 	}
 #endif
 
+#ifdef CONFIG_MOT_DONGWOON_OIS_AF_DRIFT
+	if (!of_property_read_bool(of_node, "af-drift-support")) {
+		o_ctrl->af_drift_supported = false;
+	} else {
+		o_ctrl->af_drift_supported = true;
+	}
+	CAM_WARN(CAM_OIS, "af-drift-support %d", o_ctrl->af_drift_supported);
+#endif
+
 #if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
 	if (!of_property_read_bool(of_node, "af-ois-use-same-ic")) {
 		o_ctrl->af_ois_use_same_ic = false;

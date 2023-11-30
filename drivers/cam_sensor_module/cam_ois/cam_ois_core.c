@@ -253,8 +253,9 @@ static int cam_ois_power_down(struct cam_ois_ctrl_t *o_ctrl)
 	CAM_INFO(CAM_OIS, "OIS power down successed");
 
 #ifdef CONFIG_MOT_DONGWOON_OIS_AF_DRIFT
-	if (strstr(o_ctrl->ois_name, "dw9784"))
+	if (o_ctrl->af_drift_supported == true) {
 		cam_ois_set_init_info(0);
+	}
 #endif
 
 #if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
@@ -1058,8 +1059,9 @@ static int cam_ois_pkt_parse(struct cam_ois_ctrl_t *o_ctrl, void *arg)
 		}
 
 #ifdef CONFIG_MOT_DONGWOON_OIS_AF_DRIFT
-		if (strstr(o_ctrl->ois_name, "dw9784"))
+		if (o_ctrl->af_drift_supported == true) {
 			cam_ois_set_init_info(1);
+		}
 #endif
 
 #if defined(CONFIG_MOT_OIS_SEM1217S_DRIVER) || defined(CONFIG_MOT_OIS_DW9784_DRIVER)
