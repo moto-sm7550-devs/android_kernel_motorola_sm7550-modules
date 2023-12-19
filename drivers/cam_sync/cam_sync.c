@@ -1950,6 +1950,11 @@ static int cam_sync_component_bind(struct device *dev,
 			rc, sync_dev->vdev->name, sync_dev->vdev->device_caps);
 		goto v4l2_fail;
 	}
+#ifdef CONFIG_CAM_SENSOR_PROBE_DEBUG
+	CAM_INFO(CAM_SYNC,
+		"video device registration rc = %d, name = %s, device_caps = %d",
+		rc, sync_dev->vdev->name, sync_dev->vdev->device_caps);
+#endif
 
 	cam_sync_init_entity(sync_dev);
 	video_set_drvdata(sync_dev->vdev, sync_dev);
@@ -1988,7 +1993,11 @@ static int cam_sync_component_bind(struct device *dev,
 	if (rc)
 		goto dma_driver_deinit;
 #endif
+#ifdef CONFIG_CAM_SENSOR_PROBE_DEBUG
+	CAM_INFO(CAM_SYNC, "Component bound successfully rc %d", rc);
+#else
 	CAM_DBG(CAM_SYNC, "Component bound successfully");
+#endif
 	return rc;
 
 #if IS_REACHABLE(CONFIG_MSM_GLOBAL_SYNX)
