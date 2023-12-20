@@ -10,6 +10,8 @@
 #define AW_NAME_MAX		(50)
 #define ALGO_VERSION_MAX	(80)
 
+#define AW882XX_DELAY_UNMUTE	1
+
 #define AW_GET_MIN_VALUE(value1, value2) \
 	((value1) > (value2) ? (value2) : (value1))
 
@@ -313,6 +315,14 @@ struct aw_device {
 	struct aw_efcheck_desc efcheck_desc;
 	struct aw_device_ops ops;
 	struct list_head list_node;
+#ifdef AW882XX_DELAY_UNMUTE
+	uint32_t unmute_in_process;
+	struct workqueue_struct *unmute_queue;
+	struct delayed_work unmute_work;
+	unsigned int recv_on;
+	unsigned long recv_off_time;
+	unsigned int delay_unmute;
+#endif
 };
 
 
