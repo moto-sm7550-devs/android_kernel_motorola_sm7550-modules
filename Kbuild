@@ -62,7 +62,7 @@ else ifneq (,$(filter ctwo, $(TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/ctwo.mk
 else ifneq (,$(filter ctwo_factory, $(TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/ctwo_factory.mk
-else ifneq (,$(filter eqe, $(TARGET_PRODUCT)))
+else ifneq (,$(filter eqe eqe_g eqe_ap, $(TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/eqe.mk
 else ifneq (,$(filter eqe_factory, $(TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/eqe_factory.mk
