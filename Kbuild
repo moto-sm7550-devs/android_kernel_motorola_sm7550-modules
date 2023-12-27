@@ -46,25 +46,28 @@ ifeq ($(CONFIG_ARCH_PARROT), y)
 include $(CAMERA_KERNEL_ROOT)/config/parrot.mk
 endif
 
-ifneq (,$(filter hiphid hiphic hiphi hiphid_factory hiphic_factory hiphi_factory, $(TARGET_PRODUCT)))
+# Reserve "product" & "product_factory"
+CAMERA_KERNEL_TARGET_PRODUCT := $(shell echo $(TARGET_PRODUCT) | sed s/_$(findstring factory, $(TARGET_PRODUCT)).*/$(findstring _factory, $(TARGET_PRODUCT))/)
+
+ifneq (,$(filter hiphid hiphic hiphi hiphid_factory hiphic_factory hiphi_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/hiphi.mk
-else ifneq (,$(filter li li_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter li li_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/li.mk
-else ifneq (,$(filter oneli oneli_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter oneli oneli_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/oneli.mk
-else ifneq (,$(filter eqs eqs_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter eqs eqs_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/eqs.mk
-else ifneq (,$(filter rtwo, $(TARGET_PRODUCT)))
+else ifneq (,$(filter rtwo, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/rtwo.mk
-else ifneq (,$(filter rtwo_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter rtwo_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/rtwo_factory.mk
-else ifneq (,$(filter ctwo, $(TARGET_PRODUCT)))
+else ifneq (,$(filter ctwo, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/ctwo.mk
-else ifneq (,$(filter ctwo_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter ctwo_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/ctwo_factory.mk
-else ifneq (,$(filter eqe eqe_g eqe_ap, $(TARGET_PRODUCT)))
+else ifneq (,$(filter eqe, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/eqe.mk
-else ifneq (,$(filter eqe_factory, $(TARGET_PRODUCT)))
+else ifneq (,$(filter eqe_factory, $(CAMERA_KERNEL_TARGET_PRODUCT)))
 include $(CAMERA_KERNEL_ROOT)/config/eqe_factory.mk
 endif
 
