@@ -413,69 +413,6 @@ int aw882xx_dev_get_volume(struct aw_device *aw_dev, unsigned int *get_vol)
 	return 0;
 }
 
-#ifdef AW882XX_DELAY_UNMUTE
-static void aw_dev_do_delay_unmute(struct aw_device *aw_dev)
-{
-	int i = 0;
-	int fade_step = aw_dev->vol_step;
-	struct aw_volume_desc *desc = &aw_dev->volume_desc;
-	int fade_in_vol = desc->ctl_volume;
-	struct aw_mute_desc *mute_desc = &aw_dev->mute_desc;
-
-	aw_dev_info(aw_dev->dev, "enter aw_dev_do_delay_unmute");
-	msleep(100);
-
-	aw_dev_info(aw_dev->dev, "delay finished,do unmute now");
-	aw_dev->ops.aw_i2c_write_bits(aw_dev, mute_desc->reg,
-                                mute_desc->mask,
-                                mute_desc->disable);
-
-
-	if (!aw_dev->unmute_in_process ){
-		aw_dev_info(aw_dev->dev, "cancel unmute process");
-		aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-		return;
-	}
-
-	if (aw_dev->channel == 1){//don't do fade for top speaker.let ramp handle it
-
-		if (fade_step == 0 || g_fade_in_time == 0) {
-			aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-			goto exit;
-		}
-		/*volume up*/
-		for (i = desc->mute_volume; i >= fade_in_vol; i -= fade_step) {
-			if (!aw_dev->unmute_in_process ){
-				aw_dev_info(aw_dev->dev, "cancel unmute process at step:%d", i);
-				aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-				return;
-			}
-
-			aw_dev_info(aw_dev->dev, "set vol:%d in aw_dev_do_delay_unmute",i);
-			aw882xx_dev_set_volume(aw_dev, i);
-			//as it's async fade,we can take more time
-			usleep_range(g_fade_in_time*50, g_fade_in_time*50 + 10);
-		}
-
-		if (i != fade_in_vol)
-			aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-	}// else
-	//	aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-
-exit:
-        aw_dev->unmute_in_process = 0;
-	aw_dev_info(aw_dev->dev, "exit aw_dev_do_delay_unmute");
-}
-
-static void aw_dev_unmute_work(struct work_struct *work)
-{
-        struct aw_device *aw_dev =
-                container_of(work, struct aw_device, unmute_work.work);
-
-        aw_dev_do_delay_unmute(aw_dev);
-}
-#endif
-
 static void aw_dev_fade_in(struct aw_device *aw_dev)
 {
 	int i = 0;
@@ -483,39 +420,20 @@ static void aw_dev_fade_in(struct aw_device *aw_dev)
 	struct aw_volume_desc *desc = &aw_dev->volume_desc;
 	int fade_in_vol = desc->ctl_volume;
 
-#ifdef AW882XX_DELAY_UNMUTE
-	if(aw_dev->delay_unmute) {
-		if (aw_dev->unmute_in_process) {
-			aw_dev_info(aw_dev->dev,"unmute already in process");
-		} else {
-			aw_dev->unmute_in_process = 1;
-			queue_delayed_work(aw_dev->unmute_queue,
-					&aw_dev->unmute_work,
-					0);
-		}
-	} else { //do normal fade in
-		if ((aw_dev->channel == 1) && (!aw_dev->unmute_in_process)){ //only fade for bottom speaker
-#endif
-			if (fade_step == 0 || g_fade_in_time == 0) {
-				aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-				return;
-			}
-
-			/*volume up*/
-			for (i = desc->mute_volume; i >= fade_in_vol; i -= fade_step) {
-				aw882xx_dev_set_volume(aw_dev, i);
-				usleep_range(g_fade_in_time, g_fade_in_time + 10);
-			}
-
-			if (i != fade_in_vol)
-				aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-
-#ifdef AW882XX_DELAY_UNMUTE
-		} else {//aw_dev->channel == 0
-			aw882xx_dev_set_volume(aw_dev, fade_in_vol);
-		}
+	if (fade_step == 0 || g_fade_in_time == 0) {
+		aw882xx_dev_set_volume(aw_dev, fade_in_vol);
+		return;
 	}
-#endif
+
+	/*volume up*/
+	for (i = desc->mute_volume; i >= fade_in_vol; i -= fade_step) {
+		aw882xx_dev_set_volume(aw_dev, i);
+		usleep_range(g_fade_in_time, g_fade_in_time + 10);
+	}
+
+	if (i != fade_in_vol)
+		aw882xx_dev_set_volume(aw_dev, fade_in_vol);
+
 }
 
 static void aw_dev_fade_out(struct aw_device *aw_dev)
@@ -584,29 +502,15 @@ void aw882xx_dev_mute(struct aw_device *aw_dev, bool mute)
 				mute, aw_dev->cali_desc.cali_result);
 
 	if (mute) {
-#ifdef AW882XX_DELAY_UNMUTE
-		aw_dev->unmute_in_process = 0;
-#endif
 		aw_dev_fade_out(aw_dev);
 		aw_dev->ops.aw_i2c_write_bits(aw_dev, mute_desc->reg,
 				mute_desc->mask,
 				mute_desc->enable);
 		usleep_range(AW_5000_US, AW_5000_US + 50);
 	} else {
-#ifdef AW882XX_DELAY_UNMUTE
-		if ((jiffies > aw_dev->recv_off_time) && ((jiffies - aw_dev->recv_off_time) < 100) && (!aw_dev->unmute_in_process)){
-			//do not unmute here,delayed it
-			aw_dev->delay_unmute = 1;
-			aw_dev_info(aw_dev->dev,"recv off %lu jiff ago,delay unmute needed", (jiffies - aw_dev->recv_off_time));
-		} else {
-			aw_dev->delay_unmute = 0;
-#endif
-			aw_dev->ops.aw_i2c_write_bits(aw_dev, mute_desc->reg,
+		aw_dev->ops.aw_i2c_write_bits(aw_dev, mute_desc->reg,
 				mute_desc->mask,
 				mute_desc->disable);
-#ifdef AW882XX_DELAY_UNMUTE
-		}
-#endif
 		aw_dev_fade_in(aw_dev);
 	}
 	aw_dev_info(aw_dev->dev, "done");
@@ -1259,20 +1163,6 @@ int aw882xx_device_probe(struct aw_device *aw_dev)
 	if (ret)
 		return ret;
 
-#ifdef AW882XX_DELAY_UNMUTE
-	aw_dev->unmute_queue = create_singlethread_workqueue("aw882xx_unmute");
-	if (!aw_dev->unmute_queue) {
-		aw_dev_err(aw_dev->dev, "create workqueue failed !");
-		return -EINVAL;
-	}
-
-	INIT_DELAYED_WORK(&aw_dev->unmute_work, aw_dev_unmute_work);
-
-	aw_dev->unmute_in_process = 0;
-	aw_dev->recv_on = 0;
-	aw_dev->recv_off_time = 0;
-	aw_dev->delay_unmute =0;
-#endif
 	mutex_lock(&g_dev_lock);
 	list_add(&aw_dev->list_node, &g_dev_list);
 	mutex_unlock(&g_dev_lock);
@@ -1282,12 +1172,6 @@ int aw882xx_device_probe(struct aw_device *aw_dev)
 
 int aw882xx_device_remove(struct aw_device *aw_dev)
 {
-#ifdef AW882XX_DELAY_UNMUTE
-	cancel_delayed_work_sync(&aw_dev->unmute_work);
-
-	if (aw_dev->unmute_queue)
-		destroy_workqueue(aw_dev->unmute_queue);
-#endif
 	aw882xx_monitor_deinit(&aw_dev->monitor_desc);
 	aw882xx_cali_deinit(&aw_dev->cali_desc);
 	/*aw_afe_deinit();*/
