@@ -737,6 +737,9 @@ void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 					&mbhc->zl, &mbhc->zr);
 			WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_FSM_EN,
 						 fsm_en);
+
+			pr_info("%s,zr=%d,zl=%d,linein_th=%d", __func__, mbhc->zr, mbhc->zl, mbhc->mbhc_cfg->linein_th);
+
 			if ((((mbhc->zl > mbhc->mbhc_cfg->linein_th) &&
 				(mbhc->zr > mbhc->mbhc_cfg->linein_th)) ||
 				(mbhc->zl == 0)|| (mbhc->zr == 0)) &&
