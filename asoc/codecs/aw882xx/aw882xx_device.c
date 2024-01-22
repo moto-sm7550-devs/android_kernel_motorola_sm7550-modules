@@ -594,10 +594,14 @@ void aw882xx_dev_mute(struct aw_device *aw_dev, bool mute)
 		usleep_range(AW_5000_US, AW_5000_US + 50);
 	} else {
 #ifdef AW882XX_DELAY_UNMUTE
-		if ((jiffies > aw_dev->recv_off_time) && ((jiffies - aw_dev->recv_off_time) < 100) && (!aw_dev->unmute_in_process)){
+		if ((jiffies > aw_dev->recv_off_time) &&
+		    ((jiffies - aw_dev->recv_off_time) < 100) &&
+		    (!aw_dev->unmute_in_process) &&
+		    (!aw_dev->recv_on)){
 			//do not unmute here,delayed it
 			aw_dev->delay_unmute = 1;
-			aw_dev_info(aw_dev->dev,"recv off %lu jiff ago,delay unmute needed", (jiffies - aw_dev->recv_off_time));
+			aw_dev_info(aw_dev->dev,"zmyao,recv off %lu jiff ago,recv_on=%d,delay unmute needed",
+					(jiffies - aw_dev->recv_off_time),aw_dev->recv_on);
 		} else {
 			aw_dev->delay_unmute = 0;
 #endif
