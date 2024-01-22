@@ -1405,6 +1405,16 @@ int aw882xx_dev_set_profile_index(struct aw_device *aw_dev, int index)
 		aw_dev->set_prof = index;
 		aw_dev_info(aw_dev->dev, "set prof[%s]",
 			prof_info->prof_name_list[prof_info->prof_desc[index].id]);
+#ifdef AW882XX_DELAY_UNMUTE
+		if (index == 1){//mark recv on
+			aw_dev_info(aw_dev->dev, "recv on");
+			aw_dev->recv_on = 1;
+		} else if(aw_dev->recv_on == 1){
+			aw_dev_info(aw_dev->dev, "recv off,HZ=%d jiffies=%lu",HZ,jiffies);
+			aw_dev->recv_on = 0;
+			aw_dev->recv_off_time = jiffies;//record recv off time
+		}
+#endif
 	}
 
 	ext_dsp_prof_wr_lock = aw882xx_dev_get_ext_dsp_prof_wr_lock();
