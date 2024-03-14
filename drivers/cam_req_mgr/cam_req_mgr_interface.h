@@ -322,6 +322,9 @@ struct cam_req_mgr_add_request {
 	uint32_t skip_at_eof;
 	uint32_t num_exp;
 	bool     trigger_eof;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	__u32    op_code;
+#endif
 };
 
 /**
@@ -403,6 +406,10 @@ struct cam_req_mgr_apply_request {
 	bool                          re_apply;
 	bool                          recovery;
 	enum cam_req_mgr_dual_trigger dual_trigger_status;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	uint64_t                      sof_timestamp_jiffies;
+	__u32                         op_code;
+#endif
 };
 
 /**

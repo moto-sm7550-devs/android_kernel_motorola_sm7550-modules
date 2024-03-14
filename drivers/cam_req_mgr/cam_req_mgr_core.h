@@ -250,6 +250,9 @@ struct cam_req_mgr_tbl_slot {
 	uint32_t                               inject_delay_at_eof;
 	struct  crm_tbl_slot_special_ops       ops;
 	uint64_t                               ready_state_timestamp;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	__u32                                  op_code;
+#endif
 };
 
 /**
@@ -476,6 +479,10 @@ struct cam_req_mgr_core_link {
 	bool                                 is_shdr;
 	bool                                 wait_for_dual_trigger;
 	struct cam_req_mgr_debug_data        debug_data;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	uint64_t                             sof_timestamp_jiffies;
+	bool                                 reapply_req;
+#endif
 };
 
 /**

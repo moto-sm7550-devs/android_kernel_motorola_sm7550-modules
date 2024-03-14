@@ -29,6 +29,9 @@ struct camera_io_master {
 	struct i3c_device *i3c_client;
 	struct cam_sensor_cci_client *cci_client;
 	struct cam_sensor_spi_client *spi_client;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	uint64_t sof_timestamp_jiffies;
+#endif
 };
 
 /**

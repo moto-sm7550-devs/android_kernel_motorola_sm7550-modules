@@ -64,6 +64,9 @@ static int cam_sensor_update_req_mgr(
 	CAM_DBG(CAM_SENSOR, " Rxed Req Id: %llu",
 		csl_packet->header.request_id);
 	add_req.dev_hdl = s_ctrl->bridge_intf.device_hdl;
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	add_req.op_code = csl_packet->header.op_code;
+#endif
 	if (s_ctrl->bridge_intf.crm_cb &&
 		s_ctrl->bridge_intf.crm_cb->add_req) {
 		rc = s_ctrl->bridge_intf.crm_cb->add_req(&add_req);
@@ -406,6 +409,40 @@ static int32_t cam_sensor_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 		}
 		break;
 	}
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	case CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE_STRICT_PERFRAMECONTROL20ms: {
+		if ((s_ctrl->sensor_state == CAM_SENSOR_INIT) ||
+			(s_ctrl->sensor_state == CAM_SENSOR_ACQUIRE)) {
+			CAM_WARN(CAM_SENSOR,
+				"Rxed Update packets without linking");
+			goto end;
+		}
+
+		i2c_reg_settings =
+			&i2c_data->per_frame[csl_packet->header.request_id %
+				MAX_PER_FRAME_ARRAY];
+		CAM_DBG(CAM_SENSOR, "Received Packet: %lld req: %lld",
+			csl_packet->header.request_id % MAX_PER_FRAME_ARRAY,
+			csl_packet->header.request_id);
+		if (i2c_reg_settings->is_settings_valid == 1) {
+			CAM_ERR(CAM_SENSOR,
+				"Already some pkt in offset req : %lld",
+				csl_packet->header.request_id);
+			/*
+			 * Update req mgr even in case of failure.
+			 * This will help not to wait indefinitely
+			 * and freeze. If this log is triggered then
+			 * fix it.
+			 */
+			rc = cam_sensor_update_req_mgr(s_ctrl, csl_packet);
+			if (rc)
+				CAM_ERR(CAM_SENSOR,
+					"Failed in adding request to req_mgr");
+			goto end;
+		}
+		break;
+	}
+#endif
 	case CAM_SENSOR_PACKET_OPCODE_SENSOR_FRAME_SKIP_UPDATE: {
 		if ((s_ctrl->sensor_state == CAM_SENSOR_INIT) ||
 			(s_ctrl->sensor_state == CAM_SENSOR_ACQUIRE)) {
@@ -534,7 +571,19 @@ static int32_t cam_sensor_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 		s_ctrl->sensor_res[s_ctrl->last_updated_req % MAX_PER_FRAME_ARRAY] =
 			s_ctrl->sensor_res[prev_updated_req % MAX_PER_FRAME_ARRAY];
 	}
-
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	if ((csl_packet->header.op_code & 0xFFFFFF) ==
+		CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE_STRICT_PERFRAMECONTROL20ms) {
+		i2c_reg_settings->request_id =
+			csl_packet->header.request_id;
+		rc = cam_sensor_update_req_mgr(s_ctrl, csl_packet);
+		if (rc) {
+			CAM_ERR(CAM_SENSOR,
+				"Failed in adding request to req_mgr");
+			goto end;
+		}
+	}
+#endif
 	if ((csl_packet->header.op_code & 0xFFFFFF) ==
 		CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE) {
 		i2c_reg_settings->request_id =
@@ -2034,6 +2083,19 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 					return rc;
 				}
 			}
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+			if(opcode == CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE_STRICT_PERFRAMECONTROL20ms)
+			{
+				uint64_t timeDiff = jiffies_to_msecs(jiffies - s_ctrl->io_master_info.sof_timestamp_jiffies);
+				CAM_DBG(CAM_CCI,"OP_code:%d frame setting write gap:%llu", opcode, timeDiff);
+
+				//reapply logic only effect on less then 60ms
+				if (timeDiff > 20 && timeDiff < 60){
+					CAM_ERR(CAM_CCI,"OP_code:%d frame setting write over 20ms:%llu", opcode, timeDiff);
+					return -EAGAIN;
+				}
+			}
+#endif
 			CAM_DBG(CAM_SENSOR, "applied req_id: %llu", req_id);
 		} else {
 			CAM_DBG(CAM_SENSOR,
@@ -2136,6 +2198,14 @@ int32_t cam_sensor_apply_request(struct cam_req_mgr_apply_request *apply)
 		CAM_ERR(CAM_SENSOR, "Device data is NULL");
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_MOT_SENSOR_STRICT_PERFRAMECONTROL
+	if (apply->op_code == CAM_SENSOR_PACKET_OPCODE_SENSOR_UPDATE_STRICT_PERFRAMECONTROL20ms)
+	{
+		opcode = apply->op_code;
+		s_ctrl->io_master_info.sof_timestamp_jiffies = apply->sof_timestamp_jiffies;
+	}
+#endif
 
 	if ((apply->recovery) && (apply->request_id > 0)) {
 		curr_idx = apply->request_id % MAX_PER_FRAME_ARRAY;
