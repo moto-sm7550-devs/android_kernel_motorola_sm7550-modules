@@ -180,7 +180,7 @@ endif
 
 # for KALAMA sound card driver
 ifdef CONFIG_SND_SOC_KALAMA
-ifneq (,$(filter eqe%, $(TARGET_PRODUCT)))
+ifneq (,$(findstring eqe, $(TARGET_PRODUCT)))
 	MACHINE_OBJS += kalama-crow.o
 else
 	MACHINE_OBJS += kalama.o
