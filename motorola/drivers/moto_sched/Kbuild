@@ -1,0 +1,32 @@
+# add -Wall to try to catch everything we can.
+HAVE_KERNEL_6_1 = $(shell test -d $(ANDROID_BUILD_TOP)/kernel_platform/gki/kernel/6.1 && echo 1)
+
+EXTRA_CFLAGS += -Wall
+EXTRA_CFLAGS += -I$(ANDROID_BUILD_TOP)/motorola/kernel/modules/include
+EXTRA_CFLAGS += -I$(ANDROID_BUILD_TOP)/kernel_platform/common
+EXTRA_CFLAGS += -I$(ANDROID_BUILD_TOP)/motorola/kernel/modules/drivers/moto_sched
+
+ifeq ($(HAVE_KERNEL_6_1),1)
+EXTRA_CFLAGS += -DCONFIG_KERNEL_6_1
+endif
+
+obj-m += moto_sched.o
+
+ifneq ($(filter m y,$(CONFIG_MOTO_MUTEX_INHERIT)),)
+	EXTRA_CFLAGS += -DCONFIG_MOTO_MUTEX_INHERIT
+endif
+
+ifneq ($(filter m y,$(CONFIG_MOTO_RWSEM_INHERIT)),)
+	EXTRA_CFLAGS += -DCONFIG_MOTO_RWSEM_INHERIT
+endif
+
+ifneq ($(filter m y,$(CONFIG_MOTO_FUTEX_INHERIT)),)
+	EXTRA_CFLAGS += -DCONFIG_MOTO_FUTEX_INHERIT
+endif
+
+moto_sched-y := msched_main.o msched_sysfs.o msched_common.o
+
+moto_sched-y += locking/locking_main.o
+moto_sched-$(CONFIG_MOTO_MUTEX_INHERIT) += locking/mutex.o
+moto_sched-$(CONFIG_MOTO_RWSEM_INHERIT) += locking/rwsem.o
+moto_sched-$(CONFIG_MOTO_FUTEX_INHERIT) += locking/futex.o
